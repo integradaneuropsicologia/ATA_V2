@@ -1300,11 +1300,107 @@ const FORM_QUESTIONS = [
   }
 ];
 
+function questionRange(start, end) {
+  return Array.from({ length: end - start + 1 }, (_, index) => String(start + index));
+}
+
 const INDICATORS_CONFIG = {
-  Total : {
-    label: "Total",
-    questions: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110","111","112","113"],
-    }
+  InteracaoSocial: {
+    label: "Interação social",
+    questions: questionRange(1, 7)
+  },
+  Ambiente: {
+    label: "Ambiente",
+    questions: questionRange(8, 13)
+  },
+  PessoasAoSeuRedor: {
+    label: "Pessoas ao seu redor",
+    questions: questionRange(14, 17)
+  },
+  ResistenciaAMudancas: {
+    label: "Resistência a mudanças",
+    questions: questionRange(18, 20)
+  },
+  BuscaDeUmaOrdemRigida: {
+    label: "Busca de uma ordem rígida",
+    questions: questionRange(21, 24)
+  },
+  ContatoVisual: {
+    label: "Contato visual",
+    questions: questionRange(25, 30)
+  },
+  MimicaInexpressiva: {
+    label: "Mímica inexpressiva",
+    questions: questionRange(31, 34)
+  },
+  DisturbiosDeSono: {
+    label: "Distúrbios de sono",
+    questions: questionRange(35, 39)
+  },
+  AlteracaoNaAlimentacao: {
+    label: "Alteração na alimentação",
+    questions: questionRange(40, 47)
+  },
+  ControleDosEsfincteres: {
+    label: "Controle dos esfíncteres",
+    questions: questionRange(48, 51)
+  },
+  ExploracaoDosObjetos: {
+    label: "Exploração dos objetos",
+    questions: questionRange(52, 55)
+  },
+  UsoInapropriadoDosObjetos: {
+    label: "Uso inapropriado dos objetos",
+    questions: questionRange(56, 62)
+  },
+  Atencao: {
+    label: "Atenção",
+    questions: questionRange(63, 67)
+  },
+  AusenciaDeInteressePelaAprendizagem: {
+    label: "Ausência de interesse pela aprendizagem",
+    questions: questionRange(68, 72)
+  },
+  FaltaDeIniciativa: {
+    label: "Falta de iniciativa",
+    questions: questionRange(73, 77)
+  },
+  AlteracaoDeLinguagemEComunicacao: {
+    label: "Alteração de linguagem e comunicação",
+    questions: questionRange(78, 85)
+  },
+  NaoManifestaHabilidadesEConhecimentos: {
+    label: "Não manifesta habilidades e conhecimentos",
+    questions: questionRange(86, 89)
+  },
+  ReacoesInapropriadasAnteAFrustracao: {
+    label: "Reações inapropriadas ante a frustração",
+    questions: questionRange(90, 93)
+  },
+  Responsabilidades: {
+    label: "Responsabilidades",
+    questions: questionRange(94, 95)
+  },
+  HiperatividadeHipoatividade: {
+    label: "Hiperatividade/hipoatividade",
+    questions: questionRange(96, 101)
+  },
+  MovimentosEstereotipadosERepetitivos: {
+    label: "Movimentos estereotipados e repetitivos",
+    questions: questionRange(102, 109)
+  },
+  IgnoraOPerigo: {
+    label: "Ignora o perigo",
+    questions: questionRange(110, 112)
+  },
+  SintomasAntesDos36Meses: {
+    label: "Sintomas antes dos 36 meses",
+    questions: questionRange(113, 113)
+  },
+  TotalATA: {
+    label: "Total ATA",
+    questions: questionRange(1, 113)
+  }
 };
 
     /**************************************************************
@@ -2123,6 +2219,12 @@ function buildScoringResult(questions, answersObj, indicatorsConfig) {
   };
 }
 
+function roundScoreValue(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return value;
+  return Math.round(num * 100) / 100;
+}
+
 function clearInvalidUI(formEl){
   formEl.querySelectorAll(".row.invalid").forEach(r => r.classList.remove("invalid"));
   formEl.querySelectorAll('[aria-invalid="true"]').forEach(el => el.removeAttribute("aria-invalid"));
@@ -2271,7 +2373,11 @@ Object.entries(INDICATORS_CONFIG).forEach(([key, cfg]) => {
     order: metaOrder++,
     key,
     label: cfg.label || key,
-    value: indicator.sum
+    value: roundScoreValue(indicator.sum),
+    max_possible: roundScoreValue(indicator.maxPossible),
+    answered_count: indicator.answeredCount,
+    ignored_count: indicator.ignoredCount,
+    questions: Array.isArray(cfg.questions) ? cfg.questions : []
   });
 
   if (Array.isArray(cfg?.cutoffs) && cfg.cutoffs.length) {
